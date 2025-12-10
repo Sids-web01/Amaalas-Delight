@@ -1,0 +1,350 @@
+/* ========================================
+   AMAALA'S DELIGHT - RESTAURANT WEBSITE
+   Main JavaScript File
+   ======================================== */
+
+// Wait for DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+
+    // ========================================
+    // MOBILE NAVIGATION TOGGLE
+    // ========================================
+
+    const hamburger = document.querySelector('.hamburger');
+    const navMenu = document.querySelector('.nav-menu');
+
+    // Toggle mobile menu on hamburger click
+    if (hamburger) {
+        hamburger.addEventListener('click', function() {
+            hamburger.classList.toggle('active');
+            navMenu.classList.toggle('active');
+        });
+    }
+
+    // Close mobile menu when clicking on a nav link
+    const navLinks = document.querySelectorAll('.nav-menu a');
+    navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            if (hamburger && navMenu) {
+                hamburger.classList.remove('active');
+                navMenu.classList.remove('active');
+            }
+        });
+    });
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', function(e) {
+        if (hamburger && navMenu) {
+            if (!hamburger.contains(e.target) && !navMenu.contains(e.target)) {
+                hamburger.classList.remove('active');
+                navMenu.classList.remove('active');
+            }
+        }
+    });
+
+
+    // ========================================
+    // RESERVATION FORM VALIDATION & SUBMISSION
+    // ========================================
+
+    const reservationForm = document.getElementById('reservationForm');
+    const reservationMessage = document.getElementById('reservationMessage');
+
+    if (reservationForm) {
+        reservationForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Get form values
+            const name = document.getElementById('name').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const guests = document.getElementById('guests').value;
+            const date = document.getElementById('date').value;
+            const time = document.getElementById('time').value;
+            const message = document.getElementById('message').value.trim();
+
+            // Validation
+            if (!name || !phone || !guests || !date || !time) {
+                showMessage(reservationMessage, 'Please fill in all required fields.', 'error');
+                return;
+            }
+
+            // Phone validation (basic)
+            const phoneRegex = /^[\d\s\-\(\)]+$/;
+            if (!phoneRegex.test(phone)) {
+                showMessage(reservationMessage, 'Please enter a valid phone number.', 'error');
+                return;
+            }
+
+            // Date validation (must be today or future)
+            const selectedDate = new Date(date);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (selectedDate < today) {
+                showMessage(reservationMessage, 'Please select a future date.', 'error');
+                return;
+            }
+
+            // Success message
+            showMessage(
+                reservationMessage,
+                `Thank you, ${name}! Your reservation for ${guests} guest(s) on ${formatDate(date)} at ${time} has been received. We'll contact you at ${phone} to confirm.`,
+                'success'
+            );
+
+            // Reset form
+            reservationForm.reset();
+
+            // Scroll to message
+            reservationMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+    }
+
+
+    // ========================================
+    // CONTACT FORM VALIDATION & SUBMISSION
+    // ========================================
+
+    const contactForm = document.getElementById('contactForm');
+    const contactMessage = document.getElementById('contactMessage');
+
+    if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Get form values
+            const name = document.getElementById('contactName').value.trim();
+            const email = document.getElementById('contactEmail').value.trim();
+            const message = document.getElementById('contactMessage').value.trim();
+
+            // Validation
+            if (!name || !email || !message) {
+                showMessage(contactMessage, 'Please fill in all fields.', 'error');
+                return;
+            }
+
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showMessage(contactMessage, 'Please enter a valid email address.', 'error');
+                return;
+            }
+
+            // Success message
+            showMessage(
+                contactMessage,
+                `Thank you, ${name}! Your message has been received. We'll get back to you at ${email} as soon as possible.`,
+                'success'
+            );
+
+            // Reset form
+            contactForm.reset();
+
+            // Scroll to message
+            contactMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+    }
+
+
+    // ========================================
+    // GALLERY FILTERING
+    // ========================================
+
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const galleryItems = document.querySelectorAll('.gallery-item');
+
+    if (filterButtons.length > 0) {
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+
+                // Add active class to clicked button
+                this.classList.add('active');
+
+                // Get filter value
+                const filterValue = this.getAttribute('data-filter');
+
+                // Filter gallery items
+                galleryItems.forEach(item => {
+                    const itemCategory = item.getAttribute('data-category');
+
+                    if (filterValue === 'all' || itemCategory === filterValue) {
+                        item.style.display = 'block';
+                        // Add fade-in animation
+                        item.style.animation = 'fadeIn 0.5s ease-in';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+    }
+
+
+    // ========================================
+    // LIGHTBOX FOR GALLERY IMAGES
+    // ========================================
+
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const lightboxCaption = document.getElementById('lightbox-caption');
+    const lightboxClose = document.querySelector('.lightbox-close');
+
+    if (galleryItems.length > 0 && lightbox) {
+        galleryItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const img = this.querySelector('img');
+                const title = this.querySelector('.gallery-overlay h3');
+                const category = this.querySelector('.gallery-overlay p');
+
+                if (img && lightboxImg) {
+                    lightbox.style.display = 'block';
+                    lightboxImg.src = img.src;
+
+                    if (title && category && lightboxCaption) {
+                        lightboxCaption.innerHTML = `<h3>${title.textContent}</h3><p>${category.textContent}</p>`;
+                    }
+                }
+            });
+        });
+
+        // Close lightbox when clicking the X
+        if (lightboxClose) {
+            lightboxClose.addEventListener('click', function() {
+                lightbox.style.display = 'none';
+            });
+        }
+
+        // Close lightbox when clicking outside the image
+        lightbox.addEventListener('click', function(e) {
+            if (e.target === lightbox) {
+                lightbox.style.display = 'none';
+            }
+        });
+
+        // Close lightbox with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && lightbox.style.display === 'block') {
+                lightbox.style.display = 'none';
+            }
+        });
+    }
+
+
+    // ========================================
+    // SMOOTH SCROLL FOR ANCHOR LINKS
+    // ========================================
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if (href !== '#' && href !== '') {
+                e.preventDefault();
+                const target = document.querySelector(href);
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            }
+        });
+    });
+
+
+    // ========================================
+    // SCROLL TO TOP ON PAGE LOAD
+    // ========================================
+
+    window.scrollTo(0, 0);
+
+
+    // ========================================
+    // ADD ANIMATION ON SCROLL
+    // ========================================
+
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.animation = 'fadeIn 0.8s ease-in forwards';
+            }
+        });
+    }, observerOptions);
+
+    // Observe elements with animation classes
+    const animatedElements = document.querySelectorAll(
+        '.dish-card, .feature-card, .menu-item, .blog-card, .value-card, .testimonial-card'
+    );
+
+    animatedElements.forEach(el => {
+        observer.observe(el);
+    });
+
+
+    // ========================================
+    // SET MINIMUM DATE FOR RESERVATION
+    // ========================================
+
+    const dateInput = document.getElementById('date');
+    if (dateInput) {
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.setAttribute('min', today);
+    }
+
+
+    // ========================================
+    // HELPER FUNCTIONS
+    // ========================================
+
+    /**
+     * Display success or error message
+     * @param {HTMLElement} element - Message container element
+     * @param {string} message - Message text to display
+     * @param {string} type - 'success' or 'error'
+     */
+    function showMessage(element, message, type) {
+        if (!element) return;
+
+        element.textContent = message;
+        element.className = 'form-message ' + type;
+        element.style.display = 'block';
+
+        // Hide message after 8 seconds
+        setTimeout(() => {
+            element.style.display = 'none';
+        }, 8000);
+    }
+
+    /**
+     * Format date to readable string
+     * @param {string} dateString - Date in YYYY-MM-DD format
+     * @returns {string} Formatted date string
+     */
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        return date.toLocaleDateString('en-US', options);
+    }
+
+
+    // ========================================
+    // PREVENT FORM RESUBMISSION ON PAGE REFRESH
+    // ========================================
+
+    if (window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+
+
+    // ========================================
+    // LOG INITIALIZATION
+    // ========================================
+
+    console.log('Amaala\'s Delight website initialized successfully!');
+});
