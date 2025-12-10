@@ -136,6 +136,11 @@ p {
     margin: 0;
     letter-spacing: 1px;
 }
+.logo h2:hover{
+    color: var(--primary-red);
+    cursor: pointer;
+    transition: .5s;
+}
 
 .nav-menu {
     display: flex;
@@ -298,7 +303,7 @@ p {
   text-align: center;
   font-size: 2.5rem;
   margin-bottom: 1rem;
-  color: var(--primary-red);
+  color: var(--dark-red);
   position: relative;
   display: inline-block;
   left: 50%;
@@ -348,9 +353,7 @@ p {
   color: var(--text-light);
 }
 
-.why-choose .section-title {
-  color: var(--accent-gold);
-}
+
 
 .opening-hours {
   background: var(--light-bg);
@@ -629,6 +632,14 @@ p {
 .feature-icon {
     font-size: 4rem;
     margin-bottom: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.feature-icon img{
+    width: 80px;
+    height: 80px;
 }
 
 .feature-card h3 {
@@ -776,7 +787,16 @@ p {
 .value-icon {
     font-size: 3.5rem;
     margin-bottom: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
+
+.value-icon img{
+    width: 80px;
+    height: 80px;
+}
+
 
 .value-card h3 {
     color: var(--primary-red);
